@@ -84,6 +84,8 @@ SCREEN_df_noPsych <- subset(SCREEN_df, SCREEN_df$PsychDiagAny==0)
 CONSP_df_noPsych <- subset(CONSP_df, CONSP_df$PsychDiagAny==0)
 SCREEN_df_Psych <- subset(SCREEN_df, SCREEN_df$PsychDiagAny==1)
 CONSP_df_Psych <- subset(CONSP_df, CONSP_df$PsychDiagAny==1)
+SCRFU_df_noPsych <- subset(SCRFU_df, SCRFU_df$PsychDiagAny==0 )
+SCRFU_df_Psych <- subset(SCRFU_df, SCRFU_df$PsychDiagAny==1 )
 
 #################################################
 # Checking representativeness of the subsamples #
@@ -94,16 +96,19 @@ colnames(HUDMAIN_df)[49] <- 'ID'
 
 
 repcheck <- rbind(SCREEN_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
-                          CONSP_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
-                          HUDMAIN_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')])
+                  CONSP_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
+                  HUDMAIN_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')])
 
 repcheck_noPsych <- rbind(SCREEN_df_noPsych[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
-                  CONSP_df_noPsych[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
-                  HUDMAIN_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')])
+                          CONSP_df_noPsych[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
+                          HUDMAIN_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')])
 
 
 repcheck$sample <- as.factor(repcheck$sample)
 repcheck_noPsych$sample <- as.factor(repcheck_noPsych$sample)
+
+repcheck$psychDiag <- TRUE
+repcheck_noPsych$psychDiag <- FALSE
 
 # Total Sample:
 summary(aov(DP~sample, data=repcheck))
@@ -118,6 +123,41 @@ summary(aov(OLIFE_totLog~sample, data=repcheck_noPsych))
 summary(aov(PDI_totalLog~sample, data=repcheck_noPsych))
 summary(aov(ASRSLog~sample, data=repcheck_noPsych))
 summary(aov(raads_anyLog~sample, data=repcheck_noPsych))
+
+# Total: interaction with psychDiag:
+repcheck_tot <- rbind(repcheck,repcheck_noPsych)
+summary(aov(DP~sample*psychDiag, data=repcheck_tot))
+summary(aov(OLIFE_totLog~sample*psychDiag, data=repcheck_tot))
+summary(aov(PDI_totalLog~sample*psychDiag, data=repcheck_tot))
+summary(aov(ASRSLog~sample*psychDiag, data=repcheck_tot))
+summary(aov(raads_anyLog~sample*psychDiag, data=repcheck_tot))
+
+
+# Generate descriptive table:
+descrTable <- rbind(c(paste(nrow(SCREEN_df_noPsych), '/',nrow(SCREEN_df), sep=''),paste(nrow(SCRFU_df_noPsych), '/', nrow(SCRFU_df), sep=''),nrow(HUDMAIN_df)),
+                    
+                    c('O-LIFE, PDI, EPI, History of drug use' , 'Drug use (extended)', 'RALT, BADE'),
+                    
+                    c(paste(median(as.numeric(as.vector(SCREEN_df$education)), na.rm=T), ' (',min(as.numeric(as.vector(SCREEN_df$education)), na.rm=T),'-',max(as.numeric(as.vector(SCREEN_df$education)), na.rm=T),')', sep=''),
+                      paste(median(as.numeric(as.vector(SCRFU_df_noPsych$education)), na.rm=T), ' (',min(as.numeric(as.vector(SCRFU_df_noPsych$education)), na.rm=T),'-',max(as.numeric(as.vector(SCRFU_df_noPsych$education)), na.rm=T),')', sep=''),
+                      paste(median(as.numeric(as.vector(HUDMAIN_df$education)), na.rm=T), ' (',min(as.numeric(as.vector(HUDMAIN_df$education)), na.rm=T),'-',max(as.numeric(as.vector(HUDMAIN_df$education)), na.rm=T),')', sep='')),
+                    
+                    c(paste(round(mean(as.numeric(as.vector(SCREEN_df$age)), na.rm=T),2),'±',round(sd(as.numeric(as.vector(SCREEN_df$age)), na.rm=T),2),sep=''),
+                      paste(round(mean(as.numeric(as.vector(SCRFU_df_noPsych$age)), na.rm=T),2),'±',round(sd(as.numeric(as.vector(SCRFU_df_noPsych$age)), na.rm=T),2),sep=''),
+                      paste(round(mean(as.numeric(as.vector(HUDMAIN_df$age)), na.rm=T),2),'±',round(sd(as.numeric(as.vector(HUDMAIN_df$age)), na.rm=T),2),sep='')),
+                    
+                    c(paste(median(as.numeric(as.vector(SCREEN_df$OLIFE_tot)), na.rm=T), ' (',min(as.numeric(as.vector(SCREEN_df$OLIFE_tot)), na.rm=T),'-',max(as.numeric(as.vector(SCREEN_df$OLIFE_tot)), na.rm=T),')', sep=''),
+                      paste(median(as.numeric(as.vector(SCRFU_df_noPsych$OLIFE_tot)), na.rm=T), ' (',min(as.numeric(as.vector(SCRFU_df_noPsych$OLIFE_tot)), na.rm=T),'-',max(as.numeric(as.vector(SCRFU_df_noPsych$OLIFE_tot)), na.rm=T),')', sep=''),
+                      paste(median(as.numeric(as.vector(HUDMAIN_df$OLIFE_tot)), na.rm=T), ' (',min(as.numeric(as.vector(HUDMAIN_df$OLIFE_tot)), na.rm=T),'-',max(as.numeric(as.vector(HUDMAIN_df$OLIFE_tot)), na.rm=T),')', sep='')),
+                    
+                    c(paste(median(as.numeric(as.vector(SCREEN_df$PDI_total)), na.rm=T), ' (',min(as.numeric(as.vector(SCREEN_df$PDI_total)), na.rm=T),'-',max(as.numeric(as.vector(SCREEN_df$PDI_total)), na.rm=T),')', sep=''),
+                      paste(median(as.numeric(as.vector(SCRFU_df_noPsych$PDI_total)), na.rm=T), ' (',min(as.numeric(as.vector(SCRFU_df_noPsych$PDI_total)), na.rm=T),'-',max(as.numeric(as.vector(SCRFU_df_noPsych$PDI_total)), na.rm=T),')', sep=''),
+                      paste(median(as.numeric(as.vector(HUDMAIN_df$PDI_total)), na.rm=T), ' (',min(as.numeric(as.vector(HUDMAIN_df$PDI_total)), na.rm=T),'-',max(as.numeric(as.vector(HUDMAIN_df$PDI_total)), na.rm=T),')', sep=''))
+)
+            
+colnames(descrTable) <- c('SCREENING', 'FOLLOW-UP', 'TESTING')
+rownames(descrTable) <- c('N (meeting criteria / total)', 'Assessments', 'Education, years: median(range)', 'Age, years: Mean±SD', 'O-LIFE total: median(range)', 'PDI total: median(range)')
+write.xlsx2(descrTable, file='descrTable.xlsx')              
 
 
 #########################
