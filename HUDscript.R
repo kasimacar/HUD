@@ -36,12 +36,14 @@ SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c
 SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Magiska Molekyler"), newLabel = "MagiskaMolekyler")
 
 #subset young adults
+SCREEN_df <- SCREEN_df[(SCREEN_df$age<36 & SCREEN_df$age>17),]
+CONSP_df <- CONSP_df[(CONSP_df$age<36& CONSP_df$age>17),]
+SCRFU_df <- SCRFU_df[(SCRFU_df$age<36 & SCRFU_df$age>17 & !is.na(SCRFU_df$PSY_freqprox)),]
 
-SCREEN_df <- SCREEN_df[(SCREEN_df$age<36),]
-SCREEN_df <- SCREEN_df[(SCREEN_df$age>17),]
-
-CONSP_df <- CONSP_df[(CONSP_df$age<36),]
-CONSP_df <- CONSP_df[(CONSP_df$age>17),]
+SCREEN_df$sample <- 'scr'
+CONSP_df$sample <- 'FU'
+SCRFU_df$sample <- 'FU'
+HUDMAIN_df$sample <- 'testing'
 
 #identify and option to remove outliers
 outlier <- function(dt, var) {
@@ -80,9 +82,42 @@ outlier(SCREEN_df, DP) #data, variable
 # Selecting subsamples of those without/with  psychiatric diagnoses:
 SCREEN_df_noPsych <- subset(SCREEN_df, SCREEN_df$PsychDiagAny==0)
 CONSP_df_noPsych <- subset(CONSP_df, CONSP_df$PsychDiagAny==0)
-
 SCREEN_df_Psych <- subset(SCREEN_df, SCREEN_df$PsychDiagAny==1)
 CONSP_df_Psych <- subset(CONSP_df, CONSP_df$PsychDiagAny==1)
+
+#################################################
+# Checking representativeness of the subsamples #
+#################################################
+
+colnames(HUDMAIN_df)[49] <- 'ID'
+#HUDMAIN_df_ext <- merge(HUDMAIN_df, SCREEN_df_noPsych[,c('ID', 'DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog')], by='ID')
+
+
+repcheck <- rbind(SCREEN_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
+                          CONSP_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
+                          HUDMAIN_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')])
+
+repcheck_noPsych <- rbind(SCREEN_df_noPsych[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
+                  CONSP_df_noPsych[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')],
+                  HUDMAIN_df[,c('DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog', 'sample')])
+
+
+repcheck$sample <- as.factor(repcheck$sample)
+repcheck_noPsych$sample <- as.factor(repcheck_noPsych$sample)
+
+# Total Sample:
+summary(aov(DP~sample, data=repcheck))
+summary(aov(OLIFE_totLog~sample, data=repcheck))
+summary(aov(PDI_totalLog~sample, data=repcheck))
+summary(aov(ASRSLog~sample, data=repcheck))
+summary(aov(raads_anyLog~sample, data=repcheck))
+
+# 'noPsych' Sample:
+summary(aov(DP~sample, data=repcheck_noPsych))
+summary(aov(OLIFE_totLog~sample, data=repcheck_noPsych))
+summary(aov(PDI_totalLog~sample, data=repcheck_noPsych))
+summary(aov(ASRSLog~sample, data=repcheck_noPsych))
+summary(aov(raads_anyLog~sample, data=repcheck_noPsych))
 
 
 #########################
