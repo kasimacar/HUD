@@ -202,8 +202,6 @@ cohen.d(HUDMAIN_df$alpha[HUDMAIN_df$drug_psychedelics.y==0],HUDMAIN_df$alpha[HUD
 # change numbers of plots
 par(mfrow=c(1,2))
 
-# Z-score (normalise) alpha for plot
-HUDMAIN_df$alphascaled <- scale(HUDMAIN_df$alpha)
 
 
 # boxplot normal
@@ -220,9 +218,6 @@ t.test(HUDMAIN_df$rhos[HUDMAIN_df$drug_psychedelics.y==0],HUDMAIN_df$rhos[HUDMAI
 #effect size:
 cohen.d(HUDMAIN_df$rhos[HUDMAIN_df$drug_psychedelics.y==0],HUDMAIN_df$rhos[HUDMAIN_df$drug_psychedelics.y==1], na.rm = T)
 
-
-#z-score (normalise) rho
-HUDMAIN_df$rhosscaled <- scale(HUDMAIN_df$rhos)
 
 # boxplot normal:
 rhoplot <- boxplot(HUDMAIN_df$rhos[HUDMAIN_df$drug_psychedelics.y==0],HUDMAIN_df$rhos[HUDMAIN_df$drug_psychedelics.y==1], ylab="ρ", outline = F, col=c('#01bfc4', '#f8766d'))
@@ -253,10 +248,10 @@ mydatawhole <- data.frame(Psychedelics = SCREEN_df$drug_psychedelics, Opiates = 
                           EgoPathology_Endo = as.factor(SCREEN_df$SEPI_tot), Age = SCREEN_df$age,
                           Sampling = SCREEN_df$surveyfoundout.y)
 
-# add "Sampling" to control for sampling bias
+
 Endogenous <- glm (EgoPathology_Endo ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants,
                    family = "binomial",
-                   data= mydatawhole)
+                   data= mydatawhole) # add "Sampling" to control for sampling bias
 
 # get summary
 summary(Endogenous)
@@ -283,10 +278,10 @@ mydatanodiag <- data.frame(Psychedelics = SCREEN_df_noPsych$drug_psychedelics, O
                           Stimulants = SCREEN_df_noPsych$drug_stim, Sex = SCREEN_df_noPsych$sex,
                           EgoPathology_Endo = as.factor(SCREEN_df_noPsych$SEPI_tot), Age = SCREEN_df_noPsych$age)
 
-# add "Sampling" to control for sampling bias
+
 No.Diagnoses <- glm (EgoPathology_Endo ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants,
                      family = "binomial",
-                     data= mydatanodiag)
+                     data= mydatanodiag) # add "Sampling" to control for sampling bias
 
 summary(No.Diagnoses)
 beta(No.Diagnoses)
@@ -306,10 +301,9 @@ mydatawhole <- data.frame(Psychedelics = SCREEN_df$drug_psychedelics, Opiates = 
                           EgoPathology_Drug = as.factor(SCREEN_df$SEPI_tot_drug), Age = SCREEN_df$age,
                           Sampling = SCREEN_df$surveyfoundout.y)
 
-# add "Sampling" to control for sampling bias
 Drug.Induced <- glm (EgoPathology_Drug ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants,
                      family = "binomial",
-                     data= mydatawhole)
+                     data= mydatawhole) # add "Sampling" to control for sampling bias
 
 summary(Drug.Induced)
 beta(Drug.Induced)
@@ -329,8 +323,10 @@ mydatanodiag <- data.frame(Psychedelics = SCREEN_df_noPsych$drug_psychedelics, O
                            Stimulants = SCREEN_df_noPsych$drug_stim, Sex = SCREEN_df_noPsych$sex,
                            EgoPathology_Drug = as.factor(SCREEN_df_noPsych$SEPI_tot_drug), Age = SCREEN_df_noPsych$age)
 
-# add "Sampling" to control for sampling bias
-No.Diagnoses <- glm (EgoPathology_Drug ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatanodiag, family = "binomial")
+
+No.Diagnoses <- glm (EgoPathology_Drug ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants,
+                     data= mydatanodiag, family = "binomial") # add "Sampling" to control for sampling bias
+
 summary(No.Diagnoses)
 beta(No.Diagnoses)
 coefplot.glm(No.Diagnoses, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
