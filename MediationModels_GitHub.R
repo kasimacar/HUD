@@ -2,7 +2,7 @@ library(lavaan)
 library(semPlot)
 
 
-load("HUD_anonymized.rda")
+load("HUD_anonymized_final.rda")
 
 #subset young adults
 SCREEN_df <- SCREEN_df[(SCREEN_df$age<36),]
