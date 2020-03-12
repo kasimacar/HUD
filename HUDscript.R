@@ -18,22 +18,25 @@ library(stats)
 library(compareGroups)
 
 # Load data
-load("HUD_anonymized_final.rda")
+load("/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedMarch2020.rda")
+SCREEN_df <- ALLSCR
+CONSP_df <- ALLEDU_wDemogr
+SCRFU_df <- ALLCMQ_wDemogr
 
 
 #Addressing sampling bias, combine levels
-scr_cleaned <- read.xlsx2('HUD_anonymized_cleaned.xlsx',1)[,c('ScreenID','surveyfoundout')]
-colnames(scr_cleaned)[1] <- 'ID'
-SCREEN_df <- merge(SCREEN_df, scr_cleaned, by=c('ID'))
+#scr_cleaned <- read.xlsx2('HUD_anonymized_cleaned.xlsx',1)[,c('ScreenID','surveyfoundout')]
+#colnames(scr_cleaned)[1] <- 'ID'
+#SCREEN_df <- merge(SCREEN_df, scr_cleaned, by=c('ID'))
 
-SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Npv"), newLabel = "NPV")
-SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Facebook Ad Link"), newLabel = "Facebook")
-SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("HPPD Support Group"), newLabel = "HPPD")
-SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Internet Search"), newLabel = "InternetSearch")
-SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("KI Website"), newLabel = "KI")
-SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Kompis, Student från Lunds universitet"), newLabel = "Other")
-SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("En vän tipsade mig."), newLabel = "Other")
-SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Magiska Molekyler"), newLabel = "MagiskaMolekyler")
+#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Npv"), newLabel = "NPV")
+#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Facebook Ad Link"), newLabel = "Facebook")
+#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("HPPD Support Group"), newLabel = "HPPD")
+#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Internet Search"), newLabel = "InternetSearch")
+#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("KI Website"), newLabel = "KI")
+#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Kompis, Student från Lunds universitet"), newLabel = "Other")
+#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("En vän tipsade mig."), newLabel = "Other")
+#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Magiska Molekyler"), newLabel = "MagiskaMolekyler")
 
 #subset young adults
 SCREEN_df <- SCREEN_df[(SCREEN_df$age<36 & SCREEN_df$age>17),]
@@ -195,7 +198,7 @@ t.test(SCREEN_df_Psych$DP[SCREEN_df_Psych$drug_psychedelics==0],SCREEN_df_Psych$
 
 ### General Linear Modelling
 # Whole sample
-mydatawhole <- data.frame(Sampling = SCREEN_df$surveyfoundout.y, Psychedelics = SCREEN_df$drug_psychedelics, Opiates = SCREEN_df$drug_opi,
+mydatawhole <- data.frame(Sampling = SCREEN_df$surveyfoundout, Psychedelics = SCREEN_df$drug_psychedelics, Opiates = SCREEN_df$drug_opi,
                      MDMA = SCREEN_df$drug_mdma, Alcohol = SCREEN_df$drug_alc,
                      Cannabis = SCREEN_df$drug_cannabis, Tobacco = SCREEN_df$drug_tobacco,
                      Stimulants = SCREEN_df$drug_stim, Schizotypy = SCREEN_df$DP, Age = SCREEN_df$age, Sex = SCREEN_df$sex)
@@ -209,7 +212,7 @@ coefplot.glm(All.Subjects, intercept = F, decreasing = T, title = NULL, xlab = "
 summ(All.Subjects)
 
 # Only no psychiatric diagnoses
-mydatanodiag <- data.frame(Sampling = SCREEN_df_noPsych$surveyfoundout.y, Psychedelics = SCREEN_df_noPsych$drug_psychedelics, Opiates = SCREEN_df_noPsych$drug_opi,
+mydatanodiag <- data.frame(Sampling = SCREEN_df_noPsych$surveyfoundout, Psychedelics = SCREEN_df_noPsych$drug_psychedelics, Opiates = SCREEN_df_noPsych$drug_opi,
                           MDMA = SCREEN_df_noPsych$drug_mdma, Alcohol = SCREEN_df_noPsych$drug_alc,
                           Cannabis = SCREEN_df_noPsych$drug_cannabis, Tobacco = SCREEN_df_noPsych$drug_tobacco,
                           Stimulants = SCREEN_df_noPsych$drug_stim, Schizotypy = SCREEN_df_noPsych$DP, Age = SCREEN_df_noPsych$age, Sex = SCREEN_df_noPsych$sex)
