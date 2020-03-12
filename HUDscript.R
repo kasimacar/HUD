@@ -24,11 +24,11 @@ CONSP_df <- ALLEDU_wDemogr
 SCRFU_df <- ALLCMQ_wDemogr
 
 
+# WE CAN REMOVE THIS AS I FOUND AN EASY WAY TO CLASSIFY 
 #Addressing sampling bias, combine levels
 #scr_cleaned <- read.xlsx2('HUD_anonymized_cleaned.xlsx',1)[,c('ScreenID','surveyfoundout')]
 #colnames(scr_cleaned)[1] <- 'ID'
 #SCREEN_df <- merge(SCREEN_df, scr_cleaned, by=c('ID'))
-
 #SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Npv"), newLabel = "NPV")
 #SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Facebook Ad Link"), newLabel = "Facebook")
 #SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("HPPD Support Group"), newLabel = "HPPD")
