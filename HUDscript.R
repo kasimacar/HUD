@@ -20,8 +20,8 @@ library(compareGroups)
 # Load data
 load("/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedMarch2020_anonymized.rda")
 SCREEN_df <- ALLSCR
-CONSP_df <- ALLEDU_wDemogr
-SCRFU_df <- ALLCMQ_wDemogr
+CONSP_df <-  ALLCMQ_wDemogr
+SCRFU_df <- ALLEDU_wDemogr
 
 
 # WE CAN REMOVE THIS AS I FOUND AN EASY WAY TO CLASSIFY 
