@@ -18,7 +18,7 @@ library(stats)
 library(compareGroups)
 
 # Load data
-load("/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedMarch2020.rda")
+load("/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedMarch2020_anonymized.rda")
 SCREEN_df <- ALLSCR
 CONSP_df <- ALLEDU_wDemogr
 SCRFU_df <- ALLCMQ_wDemogr
@@ -94,7 +94,7 @@ SCRFU_df_Psych <- subset(SCRFU_df, SCRFU_df$PsychDiagAny==1 )
 # Checking representativeness of the subsamples #
 #################################################
 
-colnames(HUDMAIN_df)[49] <- 'ID'
+colnames(HUDMAIN_df)[which(colnames(HUDMAIN_df)=='ID.x')] <- 'ID'
 #HUDMAIN_df_ext <- merge(HUDMAIN_df, SCREEN_df_noPsych[,c('ID', 'DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog')], by='ID')
 
 
