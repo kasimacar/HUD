@@ -93,7 +93,7 @@ SCRFU_df_Psych <- subset(SCRFU_df, SCRFU_df$PsychDiagAny==1 )
 #################################################
 # Checking representativeness of the subsamples #
 #################################################
-
+par(mfrow=c(1, 1))
 colnames(HUDMAIN_df)[which(colnames(HUDMAIN_df)=='ID.x')] <- 'ID'
 #HUDMAIN_df_ext <- merge(HUDMAIN_df, SCREEN_df_noPsych[,c('ID', 'DP','OLIFE_totLog', 'PDI_totalLog','ASRSLog', 'raads_anyLog')], by='ID')
 
