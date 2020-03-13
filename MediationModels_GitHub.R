@@ -2,7 +2,11 @@ library(lavaan)
 library(semPlot)
 
 
-load("HUD_anonymized_final.rda")
+load("/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedMarch2020_anonymized.rda")
+SCREEN_df <- ALLSCR
+CONSP_df <- ALLEDU_wDemogr
+SCRFU_df <- ALLCMQ_wDemogr
+
 
 #subset young adults
 SCREEN_df <- SCREEN_df[(SCREEN_df$age<36),]
