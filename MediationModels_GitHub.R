@@ -4,8 +4,8 @@ library(semPlot)
 
 load("/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedMarch2020_anonymized.rda")
 SCREEN_df <- ALLSCR
-CONSP_df <- ALLEDU_wDemogr
-SCRFU_df <- ALLCMQ_wDemogr
+CONSP_df <-  ALLCMQ_wDemogr
+SCRFU_df <- ALLEDU_wDemogr
 
 
 #subset young adults
@@ -105,6 +105,10 @@ semPaths(fitNORM_ml, "model", "std", residuals = T, exoCov = T)
 
 
 #### CONTINOUS ####
+load("/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedMarch2020_anonymized.rda")
+SCREEN_df <- ALLSCR
+CONSP_df <-  ALLCMQ_wDemogr
+SCRFU_df <- ALLEDU_wDemogr
 
 #subset of participants aged<36
 CONSP_df <- CONSP_df[(CONSP_df$age<36),]
