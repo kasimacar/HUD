@@ -18,25 +18,10 @@ library(stats)
 library(compareGroups)
 
 # Load data
-load("/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedMarch2020_anonymized.rda")
+load("/Users/kash/ACADEMIA/KI/HUD/Data/HUD_final_mergedMarch2020_anonymized.rda")
 SCREEN_df <- ALLSCR
 CONSP_df <-  ALLCMQ_wDemogr
 SCRFU_df <- ALLEDU_wDemogr
-
-
-# WE CAN REMOVE THIS AS I FOUND AN EASY WAY TO CLASSIFY 
-#Addressing sampling bias, combine levels
-#scr_cleaned <- read.xlsx2('HUD_anonymized_cleaned.xlsx',1)[,c('ScreenID','surveyfoundout')]
-#colnames(scr_cleaned)[1] <- 'ID'
-#SCREEN_df <- merge(SCREEN_df, scr_cleaned, by=c('ID'))
-#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Npv"), newLabel = "NPV")
-#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Facebook Ad Link"), newLabel = "Facebook")
-#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("HPPD Support Group"), newLabel = "HPPD")
-#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Internet Search"), newLabel = "InternetSearch")
-#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("KI Website"), newLabel = "KI")
-#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Kompis, Student från Lunds universitet"), newLabel = "Other")
-#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("En vän tipsade mig."), newLabel = "Other")
-#SCREEN_df$surveyfoundout.y <- combineLevels(SCREEN_df$surveyfoundout.y, levs = c("Magiska Molekyler"), newLabel = "MagiskaMolekyler")
 
 #subset young adults
 SCREEN_df <- SCREEN_df[(SCREEN_df$age<36 & SCREEN_df$age>17),]
@@ -157,7 +142,7 @@ descrTable <- rbind(c(paste(nrow(SCREEN_df_noPsych), '/',nrow(SCREEN_df), sep=''
                       paste(median(as.numeric(as.vector(SCRFU_df_noPsych$PDI_total)), na.rm=T), ' (',min(as.numeric(as.vector(SCRFU_df_noPsych$PDI_total)), na.rm=T),'-',max(as.numeric(as.vector(SCRFU_df_noPsych$PDI_total)), na.rm=T),')', sep=''),
                       paste(median(as.numeric(as.vector(HUDMAIN_df$PDI_total)), na.rm=T), ' (',min(as.numeric(as.vector(HUDMAIN_df$PDI_total)), na.rm=T),'-',max(as.numeric(as.vector(HUDMAIN_df$PDI_total)), na.rm=T),')', sep=''))
 )
-            
+
 colnames(descrTable) <- c('SCREENING', 'FOLLOW-UP', 'TESTING')
 rownames(descrTable) <- c('N (meeting criteria / total)', 'Assessments', 'Education, years: median(range)', 'Age, years: Mean±SD', 'O-LIFE total: median(range)', 'PDI total: median(range)')
 write.xlsx2(descrTable, file='descrTable.xlsx')              
@@ -177,7 +162,7 @@ cohen.d(SCREEN_df$DP[SCREEN_df$drug_psychedelics==0],SCREEN_df$DP[SCREEN_df$drug
 
 
 # Plot whole sample
-boxplot(SCREEN_df$DP[SCREEN_df$drug_psychedelics==0],SCREEN_df$DP[SCREEN_df$drug_psychedelics==1], ylab="Schizotypy (z-score)", outline = F, col=c('#01bfc4', '#f8766d'))
+boxplot(SCREEN_df$DP[SCREEN_df$drug_psychedelics==0],SCREEN_df$DP[SCREEN_df$drug_psychedelics==1], ylab="Schizotypy (z-score)", outline = F, col=c('#1d9998', '#c96668'))
 axis(side = 1, at = 1, labels = 'Non-users')
 axis(side = 1, at = 2, labels = 'Psychedelic Drug-users')
 points(cbind(jitter(rep(1, table(SCREEN_df$drug_psychedelics==0)[2])), SCREEN_df$DP[SCREEN_df$drug_psychedelics==0]), pch=16)
@@ -199,9 +184,9 @@ t.test(SCREEN_df_Psych$DP[SCREEN_df_Psych$drug_psychedelics==0],SCREEN_df_Psych$
 ### General Linear Modelling
 # Whole sample
 mydatawhole <- data.frame(Sampling = SCREEN_df$surveyfoundout, Psychedelics = SCREEN_df$drug_psychedelics, Opiates = SCREEN_df$drug_opi,
-                     MDMA = SCREEN_df$drug_mdma, Alcohol = SCREEN_df$drug_alc,
-                     Cannabis = SCREEN_df$drug_cannabis, Tobacco = SCREEN_df$drug_tobacco,
-                     Stimulants = SCREEN_df$drug_stim, Schizotypy = SCREEN_df$DP, Age = SCREEN_df$age, Sex = SCREEN_df$sex)
+                          MDMA = SCREEN_df$drug_mdma, Alcohol = SCREEN_df$drug_alc,
+                          Cannabis = SCREEN_df$drug_cannabis, Tobacco = SCREEN_df$drug_tobacco,
+                          Stimulants = SCREEN_df$drug_stim, Schizotypy = SCREEN_df$DP, Age = SCREEN_df$age, Sex = SCREEN_df$sex)
 
 # add "Sampling" to control for sampling bias
 All.Subjects <- glm (Schizotypy ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatawhole)
@@ -213,9 +198,9 @@ summ(All.Subjects)
 
 # Only no psychiatric diagnoses
 mydatanodiag <- data.frame(Sampling = SCREEN_df_noPsych$surveyfoundout, Psychedelics = SCREEN_df_noPsych$drug_psychedelics, Opiates = SCREEN_df_noPsych$drug_opi,
-                          MDMA = SCREEN_df_noPsych$drug_mdma, Alcohol = SCREEN_df_noPsych$drug_alc,
-                          Cannabis = SCREEN_df_noPsych$drug_cannabis, Tobacco = SCREEN_df_noPsych$drug_tobacco,
-                          Stimulants = SCREEN_df_noPsych$drug_stim, Schizotypy = SCREEN_df_noPsych$DP, Age = SCREEN_df_noPsych$age, Sex = SCREEN_df_noPsych$sex)
+                           MDMA = SCREEN_df_noPsych$drug_mdma, Alcohol = SCREEN_df_noPsych$drug_alc,
+                           Cannabis = SCREEN_df_noPsych$drug_cannabis, Tobacco = SCREEN_df_noPsych$drug_tobacco,
+                           Stimulants = SCREEN_df_noPsych$drug_stim, Schizotypy = SCREEN_df_noPsych$DP, Age = SCREEN_df_noPsych$age, Sex = SCREEN_df_noPsych$sex)
 
 # add "Sampling" to control for sampling bias
 No.Diagnoses <- glm(Schizotypy ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatanodiag)
@@ -240,9 +225,9 @@ HUDMAIN_df$EII2scaled <- scale(HUDMAIN_df$EII)
 
 #EII (old)
 mydata.EII1 <- data.frame(Psychedelics = HUDMAIN_df$PSY_freqprox,
-                       MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
-                       Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
-                       Stimulants = HUDMAIN_df$STIM_freqprox, EII = HUDMAIN_df$EII1scaled, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex)
+                          MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
+                          Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
+                          Stimulants = HUDMAIN_df$STIM_freqprox, EII = HUDMAIN_df$EII1scaled, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex)
 EII.1 <- glm (EII ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydata.EII1)
 EII.1.S <- lm.beta(EII.1)
 summary(EII.1.S)
@@ -252,9 +237,9 @@ coefplot.glm(EII.1, intercept = F, decreasing = T, title = NULL, xlab = "Estimat
 
 #EII (new)
 mydata.EII2 <- data.frame(Psychedelics = HUDMAIN_df$PSY_freqprox,
-                         MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
-                         Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
-                         Stimulants = HUDMAIN_df$STIM_freqprox, EII = HUDMAIN_df$EII2scaled, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex)
+                          MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
+                          Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
+                          Stimulants = HUDMAIN_df$STIM_freqprox, EII = HUDMAIN_df$EII2scaled, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex)
 EII.2 <- glm (EII ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydata.EII2)
 EII.2.S <- lm.beta(EII.2)
 summary(EII.2)
@@ -324,10 +309,10 @@ mydatawhole <- data.frame(Psychedelics = SCREEN_df$drug_psychedelics, Opiates = 
                           Cannabis = SCREEN_df$drug_cannabis, Tobacco = SCREEN_df$drug_tobacco,
                           Stimulants = SCREEN_df$drug_stim, Sex = SCREEN_df$sex,
                           EgoPathology_Endo = as.factor(SCREEN_df$SEPI_tot), Age = SCREEN_df$age,
-                          Sampling = SCREEN_df$surveyfoundout.y)
+                          Sampling = SCREEN_df$surveyfoundout)
 
 
-Endogenous <- glm (EgoPathology_Endo ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants,
+Endogenous <- glm (EgoPathology_Endo ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants+Sampling,
                    family = "binomial",
                    data= mydatawhole) # add "Sampling" to control for sampling bias
 
@@ -351,10 +336,11 @@ summ(Endogenous)
 
 # Endogenous ego-pathology Non-psychiatric
 mydatanodiag <- data.frame(Psychedelics = SCREEN_df_noPsych$drug_psychedelics, Opiates = SCREEN_df_noPsych$drug_opi,
-                          MDMA = SCREEN_df_noPsych$drug_mdma, Alcohol = SCREEN_df_noPsych$drug_alc,
-                          Cannabis = SCREEN_df_noPsych$drug_cannabis, Tobacco = SCREEN_df_noPsych$drug_tobacco,
-                          Stimulants = SCREEN_df_noPsych$drug_stim, Sex = SCREEN_df_noPsych$sex,
-                          EgoPathology_Endo = as.factor(SCREEN_df_noPsych$SEPI_tot), Age = SCREEN_df_noPsych$age)
+                           MDMA = SCREEN_df_noPsych$drug_mdma, Alcohol = SCREEN_df_noPsych$drug_alc,
+                           Cannabis = SCREEN_df_noPsych$drug_cannabis, Tobacco = SCREEN_df_noPsych$drug_tobacco,
+                           Stimulants = SCREEN_df_noPsych$drug_stim, Sex = SCREEN_df_noPsych$sex,
+                           EgoPathology_Endo = as.factor(SCREEN_df_noPsych$SEPI_tot), Age = SCREEN_df_noPsych$age,
+                           Sampling = SCREEN_df_noPsych$surveyfoundout)
 
 
 No.Diagnoses <- glm (EgoPathology_Endo ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants,
@@ -377,7 +363,7 @@ mydatawhole <- data.frame(Psychedelics = SCREEN_df$drug_psychedelics, Opiates = 
                           Cannabis = SCREEN_df$drug_cannabis, Tobacco = SCREEN_df$drug_tobacco,
                           Stimulants = SCREEN_df$drug_stim, Sex = SCREEN_df$sex,
                           EgoPathology_Drug = as.factor(SCREEN_df$SEPI_tot_drug), Age = SCREEN_df$age,
-                          Sampling = SCREEN_df$surveyfoundout.y)
+                          Sampling = SCREEN_df$surveyfoundout)
 
 Drug.Induced <- glm (EgoPathology_Drug ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants,
                      family = "binomial",
@@ -386,6 +372,8 @@ Drug.Induced <- glm (EgoPathology_Drug ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcoh
 summary(Drug.Induced)
 beta(Drug.Induced)
 coefplot.glm(Drug.Induced, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
+
+summ(Drug.Induced)
 
 #odds ratio
 exp(coef(Drug.Induced))
@@ -399,7 +387,8 @@ mydatanodiag <- data.frame(Psychedelics = SCREEN_df_noPsych$drug_psychedelics, O
                            MDMA = SCREEN_df_noPsych$drug_mdma, Alcohol = SCREEN_df_noPsych$drug_alc,
                            Cannabis = SCREEN_df_noPsych$drug_cannabis, Tobacco = SCREEN_df_noPsych$drug_tobacco,
                            Stimulants = SCREEN_df_noPsych$drug_stim, Sex = SCREEN_df_noPsych$sex,
-                           EgoPathology_Drug = as.factor(SCREEN_df_noPsych$SEPI_tot_drug), Age = SCREEN_df_noPsych$age)
+                           EgoPathology_Drug = as.factor(SCREEN_df_noPsych$SEPI_tot_drug), Age = SCREEN_df_noPsych$age,
+                           Sampling = SCREEN_df_noPsych$surveyfoundout)
 
 
 No.Diagnoses <- glm (EgoPathology_Drug ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants,
@@ -440,15 +429,15 @@ SCREEN_df$drug_psychedelics.yn <- combineLevels(SCREEN_df$drug_psychedelics.yn, 
 
 #compare groups
 dataDescriptives <- data.frame(Psychedelics = SCREEN_df$drug_psychedelics.yn, Age = SCREEN_df$age, Sex = SCREEN_df$sex,
-                              Education = SCREEN_df$education.nn, Depression = SCREEN_df$diagMDep,
-                              Bipolar = SCREEN_df$diagBP, Schizophrenia = SCREEN_df$diagScz, ADHD = SCREEN_df$diagADHD,
-                              Autism = SCREEN_df$diagASD, OCD = SCREEN_df$diagOCD, DiagOther = SCREEN_df$diagOther,
-                              Medication = SCREEN_df$medsY1, Alcohol = SCREEN_df$drug_alc, Tobacco = SCREEN_df$drug_tobacco,
-                              MDMA = SCREEN_df$drug_mdma, Cannabis = SCREEN_df$drug_cannabis, Stimulants = SCREEN_df$drug_stim,
-                              Opiates = SCREEN_df$drug_opi, Schizotypy = SCREEN_df$DP,
-                              ASRS = SCREEN_df$ASRS, RAADS = SCREEN_df$raads_any, SEPIendogenous = SCREEN_df$SEPI_tot,
-                              SEPIdrug = SCREEN_df$SEPI_tot_drug, OLIFE = SCREEN_df$OLIFE_tot, PDI = SCREEN_df$PDI_total,
-                              PsychiatricDiagnosis = SCREEN_df$PsychDiagAny, Survey = SCREEN_df$surveyfoundout.y)
+                               Education = SCREEN_df$education.nn, Depression = SCREEN_df$diagMDep,
+                               Bipolar = SCREEN_df$diagBP, Schizophrenia = SCREEN_df$diagScz, ADHD = SCREEN_df$diagADHD,
+                               Autism = SCREEN_df$diagASD, OCD = SCREEN_df$diagOCD, DiagOther = SCREEN_df$diagOther,
+                               Medication = SCREEN_df$medsY1, Alcohol = SCREEN_df$drug_alc, Tobacco = SCREEN_df$drug_tobacco,
+                               MDMA = SCREEN_df$drug_mdma, Cannabis = SCREEN_df$drug_cannabis, Stimulants = SCREEN_df$drug_stim,
+                               Opiates = SCREEN_df$drug_opi, Schizotypy = SCREEN_df$DP,
+                               ASRS = SCREEN_df$ASRS, RAADS = SCREEN_df$raads_any, SEPIendogenous = SCREEN_df$SEPI_tot,
+                               SEPIdrug = SCREEN_df$SEPI_tot_drug, OLIFE = SCREEN_df$OLIFE_tot, PDI = SCREEN_df$PDI_total,
+                               PsychiatricDiagnosis = SCREEN_df$PsychDiagAny, Survey = SCREEN_df$surveyfoundout)
 
 compareGroups(Psychedelics ~ Age + Sex + Education + Depression + Bipolar + Schizophrenia + ADHD + Autism
               + OCD + DiagOther + PsychiatricDiagnosis + Medication + Alcohol + Tobacco + MDMA + Cannabis + Stimulants
@@ -503,14 +492,14 @@ HUDMAIN_df$drug_psychedelics.yn <- combineLevels(HUDMAIN_df$drug_psychedelics.yn
 
 #compare groups
 dataDescriptivesSmall <- data.frame(Psychedelics = HUDMAIN_df$drug_psychedelics.yn, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex,
-                               Education = HUDMAIN_df$education.n, Alcohol = HUDMAIN_df$drug_alc, Tobacco = HUDMAIN_df$drug_tobacco,
-                               MDMA = HUDMAIN_df$drug_mdma, Cannabis = HUDMAIN_df$drug_cannabis, Stimulants = HUDMAIN_df$drug_stim,
-                               Opiates = HUDMAIN_df$drug_opi, Schizotypy = HUDMAIN_df$DP, Alcohol_FreqProx = HUDMAIN_df$ALC_freqprox,
-                               Cannabis_FreqProx = HUDMAIN_df$CAN_freqprox, Tobacco_FreqProx = HUDMAIN_df$TOB_freqprox,
-                               Stimulants_FreqProx = HUDMAIN_df$STIM_freqprox, Opiates_FreqProx = HUDMAIN_df$OPI_freqprox,
-                               ASRS = HUDMAIN_df$ASRS, RAADS = HUDMAIN_df$raads_any, SEPIendogenous = HUDMAIN_df$SEPI_tot,
-                               SEPIdrug = HUDMAIN_df$SEPI_tot_drug, OLIFE = HUDMAIN_df$OLIFE_tot, PDI = HUDMAIN_df$PDI_total,
-                               MDMA_FreqProx = HUDMAIN_df$MDMA_freqprox, PsychiatricDiagnosis = HUDMAIN_df$PsychDiagAny)
+                                    Education = HUDMAIN_df$education.n, Alcohol = HUDMAIN_df$drug_alc, Tobacco = HUDMAIN_df$drug_tobacco,
+                                    MDMA = HUDMAIN_df$drug_mdma, Cannabis = HUDMAIN_df$drug_cannabis, Stimulants = HUDMAIN_df$drug_stim,
+                                    Opiates = HUDMAIN_df$drug_opi, Schizotypy = HUDMAIN_df$DP, Alcohol_FreqProx = HUDMAIN_df$ALC_freqprox,
+                                    Cannabis_FreqProx = HUDMAIN_df$CAN_freqprox, Tobacco_FreqProx = HUDMAIN_df$TOB_freqprox,
+                                    Stimulants_FreqProx = HUDMAIN_df$STIM_freqprox, Opiates_FreqProx = HUDMAIN_df$OPI_freqprox,
+                                    ASRS = HUDMAIN_df$ASRS, RAADS = HUDMAIN_df$raads_any, SEPIendogenous = HUDMAIN_df$SEPI_tot,
+                                    SEPIdrug = HUDMAIN_df$SEPI_tot_drug, OLIFE = HUDMAIN_df$OLIFE_tot, PDI = HUDMAIN_df$PDI_total,
+                                    MDMA_FreqProx = HUDMAIN_df$MDMA_freqprox, PsychiatricDiagnosis = HUDMAIN_df$PsychDiagAny)
 
 compareGroups(Psychedelics ~ Age + Sex + Education + Alcohol + Tobacco + MDMA + Cannabis + Stimulants
               + Opiates + Schizotypy + ASRS + RAADS + SEPIendogenous + SEPIdrug + OLIFE + PDI + Alcohol_FreqProx
@@ -534,4 +523,3 @@ export2html(restab, file='descriptives1.html', header.labels = c(p.overall = "p"
 
 #export Rmarkdown
 export2md(restab, header.labels = c(p.overall = "p"), format = "markdown")
-
