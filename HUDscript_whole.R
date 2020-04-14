@@ -17,7 +17,6 @@ library(rockchalk)
 library(xlsx)
 library(stats)
 library(compareGroups)
-library(rsq)
 
 # Load data
 load('/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedApril2020_anonymized.rda')
