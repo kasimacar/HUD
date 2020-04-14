@@ -206,7 +206,7 @@ multiplot(All.Subjects, Healthy.Young.Adults, intercept = F, decreasing = T, tit
   theme(text = element_text(size=20), axis.text.x = element_text(angle=90, hjust=1)) 
 
 
-# Total Exposure (FREQPROX):
+# Total exposure to drugs (FREQPROX):
 # Whole sample
 mydatawhole <- data.frame(Sampling = ALLFU_df$surveyfoundout, Psychedelics = ALLFU_df$PSY_freqprox, Opiates = ALLFU_df$OPI_freqprox,
                           MDMA = ALLFU_df$MDMA_freqprox, Alcohol = ALLFU_df$ALC_freqprox,
