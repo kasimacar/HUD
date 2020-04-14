@@ -17,6 +17,7 @@ library(rockchalk)
 library(xlsx)
 library(stats)
 library(compareGroups)
+library(rsq)
 
 # Load data
 load('/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedApril2020_anonymized.rda')
@@ -145,7 +146,7 @@ write.xlsx2(descrTable, file='/Users/alebedev/Downloads/descrTable_whole.xlsx')
 
 ### Whole sample:
 # T-test: 
-t.test(SCREEN_df$DP[SCREEN_df$drug_psychedelics==0],SCREEN_df$DP[SCREEN_df$drug_psychedelics==1])
+t.test(SCREEN_df$DP[SCREEN_df$drug_psychedelics==0],SCREEN_df$DP[SCREEN_df$drug_psychedelics==1], 'less')
 
 # effect size:
 cohen.d(SCREEN_df$DP[SCREEN_df$drug_psychedelics==0],SCREEN_df$DP[SCREEN_df$drug_psychedelics==1], na.rm = T)
@@ -160,7 +161,7 @@ points(cbind(jitter(rep(2, table(SCREEN_df$drug_psychedelics==1)[2])), SCREEN_df
 
 ### Only those who meet criteria:
 # Two-sample t-test: 
-t.test(SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0],SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1])
+t.test(SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0],SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1], 'less')
 # Plot:
 boxplot(SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0],SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1], ylab="Schizotypy (Z-score)", outline = F)
 axis(side = 1, at = 1, labels = 'Non-users')
@@ -168,8 +169,8 @@ axis(side = 1, at = 2, labels = 'Psychedelic Drug-users', pos = -2.68)
 points(cbind(jitter(rep(1, table(SCREEN_df_noPsych$drug_psychedelics==0)[2])), SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0]), pch=16)
 points(cbind(jitter(rep(2, table(SCREEN_df_noPsych$drug_psychedelics==1)[2])), SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1]), pch=16)
 
-### Only psychiatric diagnoses
-#t.test(SCREEN_df_Psych$DP[SCREEN_df_Psych$drug_psychedelics==0],SCREEN_df_Psych$DP[SCREEN_df_Psych$drug_psychedelics==1])
+# Muliple regression: DP ~ Diagnosis x PsychedelicUse:
+summary(glm(DP~drug_psychedelics*PsychDiagAny, data=SCREEN_df))
 
 ### General Linear Modelling
 # Whole sample
@@ -196,12 +197,48 @@ Healthy.Young.Adults <- glm(Schizotypy ~ Psychedelics+Opiates+MDMA+Alcohol+Canna
 summary(Healthy.Young.Adults)
 beta(Healthy.Young.Adults)
 coefplot.glm(Healthy.Young.Adults, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
+summ(Healthy.Young.Adults)
 
 # Create plot for both models
 multiplot(All.Subjects, Healthy.Young.Adults, intercept = F, decreasing = T, title = NULL,
           xlab = "Estimate", numeric = F, zeroColor = "grey", plot.shapes = TRUE,
           lwdInner=2,pointSize = 5, cex=7)+scale_color_manual(values=c("black", "black"))+
   theme(text = element_text(size=20), axis.text.x = element_text(angle=90, hjust=1)) 
+
+
+# Total Exposure (FREQPROX):
+# Whole sample
+mydatawhole <- data.frame(Sampling = ALLFU_df$surveyfoundout, Psychedelics = ALLFU_df$PSY_freqprox, Opiates = ALLFU_df$OPI_freqprox,
+                          MDMA = ALLFU_df$MDMA_freqprox, Alcohol = ALLFU_df$ALC_freqprox,
+                          Cannabis = ALLFU_df$CAN_freqprox, Tobacco = ALLFU_df$TOB_freqprox,
+                          Stimulants = ALLFU_df$STIM_freqprox, Schizotypy = ALLFU_df$DP, Age = ALLFU_df$age, Sex = ALLFU_df$sex)
+
+# add "Sampling" to control for sampling bias
+All.Subjects <- glm (Schizotypy ~ Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatawhole)
+summary(All.Subjects)
+beta(All.Subjects)
+coefplot.glm(All.Subjects, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
+summ(All.Subjects)
+
+# Meet study criteria:
+mydatanodiag <- data.frame(Sampling = ALLFU_df_noPsych$surveyfoundout, Psychedelics = ALLFU_df_noPsych$PSY_freqprox, Opiates = ALLFU_df_noPsych$OPI_freqprox,
+                           MDMA = ALLFU_df_noPsych$MDMA_freqprox, Alcohol = ALLFU_df_noPsych$ALC_freqprox,
+                           Cannabis = ALLFU_df_noPsych$CAN_freqprox, Tobacco = ALLFU_df_noPsych$TOB_freqprox,
+                           Stimulants = ALLFU_df_noPsych$STIM_freqprox, Schizotypy = ALLFU_df_noPsych$DP, Age = ALLFU_df_noPsych$age, Sex = ALLFU_df_noPsych$sex)
+
+# add "Sampling" to control for sampling bias
+Healthy.Young.Adults <- glm(Schizotypy ~ Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatanodiag)
+summary(Healthy.Young.Adults)
+beta(Healthy.Young.Adults)
+coefplot.glm(Healthy.Young.Adults, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
+summ(Healthy.Young.Adults)
+
+# Create plot for both models
+multiplot(All.Subjects, Healthy.Young.Adults, intercept = F, decreasing = T, title = NULL,
+          xlab = "Estimate", numeric = F, zeroColor = "grey", plot.shapes = TRUE,
+          lwdInner=2,pointSize = 5, cex=7)+scale_color_manual(values=c("black", "black"))+
+  theme(text = element_text(size=20), axis.text.x = element_text(angle=90, hjust=1)) 
+
 
 
 ###############################
@@ -240,7 +277,11 @@ coefplot.glm(EII.2, intercept = F, decreasing = T, title = NULL, xlab = "Estimat
 
 # Create plot for both models
 multiplot(EII.1, EII.2, intercept = F, decreasing = T, title = NULL,
-          xlab = "Estimate", numeric = F, zeroColor = "grey", plot.shapes = TRUE)+scale_color_manual(values = c("black", "black"))
+  xlab = "Estimate", numeric = F, zeroColor = "grey", plot.shapes = TRUE,
+  lwdInner=2,pointSize = 5, cex=7)+scale_color_manual(values = c("black", "black"))+
+  theme(text = element_text(size=20), axis.text.x = element_text(angle=90, hjust=1)) 
+
+
 
 ##############################
 ### Aversive Fear Learning ###
