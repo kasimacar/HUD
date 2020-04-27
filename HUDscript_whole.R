@@ -248,9 +248,8 @@ multiplot(All.Subjects, Healthy.Young.Adults, intercept = F, decreasing = T, tit
 #Standardize EII scores
 HUDMAIN_df$EII1scaled <- scale(HUDMAIN_df$EII2)
 
-HUDMAIN_df$EII2scaled <- scale(HUDMAIN_df$EII)
 
-#EII (old)
+#EII
 mydata.EII1 <- data.frame(Psychedelics = HUDMAIN_df$PSY_freqprox,
                           MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
                           Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
@@ -260,25 +259,10 @@ EII.1.S <- lm.beta(EII.1)
 summary(EII.1.S)
 summary(EII.1)
 beta(EII.1)
-coefplot.glm(EII.1, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
-
-#EII (new)
-mydata.EII2 <- data.frame(Psychedelics = HUDMAIN_df$PSY_freqprox,
-                          MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
-                          Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
-                          Stimulants = HUDMAIN_df$STIM_freqprox, EII = HUDMAIN_df$EII2scaled, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex)
-EII.2 <- glm (EII ~ Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydata.EII2)
-EII.2.S <- lm.beta(EII.2)
-summary(EII.2)
-summary(EII.2.S)
-beta(EII.2)
-coefplot.glm(EII.2, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
-
-# Create plot for both models
-multiplot(EII.1, EII.2, intercept = F, decreasing = T, title = NULL,
-  xlab = "Estimate", numeric = F, zeroColor = "grey", plot.shapes = TRUE,
-  lwdInner=2,pointSize = 5, cex=7)+scale_color_manual(values = c("black", "black"))+
-  theme(text = element_text(size=20), axis.text.x = element_text(angle=90, hjust=1)) 
+coefplot.glm(EII.1, intercept = F, decreasing = T, title = NULL,
+             xlab = "Estimate", numeric = F, zeroColor = "grey", plot.shapes = TRUE,
+             lwdInner=2,pointSize = 5, cex=7)+scale_color_manual(values = c("black", "black"))+
+  theme(text = element_text(size=20), axis.text.x = element_text(angle=90, hjust=1))
 
 
 
