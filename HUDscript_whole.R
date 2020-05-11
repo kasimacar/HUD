@@ -19,7 +19,7 @@ library(stats)
 library(compareGroups)
 
 # Load data
-load('/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedApril2020_anonymized.rda')
+load('/Users/alebedev/Dropbox/HUD_final_mergedMay2020_anonymized.rda')
 SCREEN_df <- ALLSCR[!is.na(ALLSCR$drug_psychedelics),]
 ALLFU_df <-  ALLFU_wDemogr[!is.na(ALLFU_wDemogr$CONS5),]
 
@@ -161,6 +161,8 @@ points(cbind(jitter(rep(2, table(SCREEN_df$drug_psychedelics==1)[2])), SCREEN_df
 ### Only those who meet criteria:
 # Two-sample t-test: 
 t.test(SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0],SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1], 'less')
+cohen.d(SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0],SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1], na.rm = T)
+
 # Plot:
 boxplot(SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0],SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1], ylab="Schizotypy (Z-score)", outline = F)
 axis(side = 1, at = 1, labels = 'Non-users')
@@ -169,7 +171,7 @@ points(cbind(jitter(rep(1, table(SCREEN_df_noPsych$drug_psychedelics==0)[2])), S
 points(cbind(jitter(rep(2, table(SCREEN_df_noPsych$drug_psychedelics==1)[2])), SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1]), pch=16)
 
 # Muliple regression: DP ~ Diagnosis x PsychedelicUse:
-summary(glm(DP~drug_psychedelics*PsychDiagAny, data=SCREEN_df))
+beta(glm(DP~drug_psychedelics*PsychDiagAny, data=SCREEN_df))
 
 ### General Linear Modelling
 # Whole sample
@@ -179,7 +181,7 @@ mydatawhole <- data.frame(Sampling = SCREEN_df$surveyfoundout, Psychedelics = SC
                           Stimulants = SCREEN_df$drug_stim, Schizotypy = SCREEN_df$DP, Age = SCREEN_df$age, Sex = SCREEN_df$sex)
 
 # add "Sampling" to control for sampling bias
-All.Subjects <- glm (Schizotypy ~ Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatawhole)
+All.Subjects <- glm (Schizotypy ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatawhole)
 summary(All.Subjects)
 beta(All.Subjects)
 coefplot.glm(All.Subjects, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
@@ -192,7 +194,7 @@ mydatanodiag <- data.frame(Sampling = SCREEN_df_noPsych$surveyfoundout, Psychede
                            Stimulants = SCREEN_df_noPsych$drug_stim, Schizotypy = SCREEN_df_noPsych$DP, Age = SCREEN_df_noPsych$age, Sex = SCREEN_df_noPsych$sex)
 
 # add "Sampling" to control for sampling bias
-Healthy.Young.Adults <- glm(Schizotypy ~ Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatanodiag)
+Healthy.Young.Adults <- glm(Schizotypy ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydatanodiag)
 summary(Healthy.Young.Adults)
 beta(Healthy.Young.Adults)
 coefplot.glm(Healthy.Young.Adults, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
@@ -248,21 +250,40 @@ multiplot(All.Subjects, Healthy.Young.Adults, intercept = F, decreasing = T, tit
 #Standardize EII scores
 HUDMAIN_df$EII1scaled <- scale(HUDMAIN_df$EII2)
 
+HUDMAIN_df$EII2scaled <- scale(HUDMAIN_df$EII)
 
-#EII
+t.test(HUDMAIN_df$EII1scaled[HUDMAIN_df$group.y=='NP'],HUDMAIN_df$EII1scaled[HUDMAIN_df$group.y=='PP'])
+boxplot(HUDMAIN_df$EII1scaled[HUDMAIN_df$group.y=='NP'],HUDMAIN_df$EII1scaled[HUDMAIN_df$group.y=='PP'])
+
+#EII (old)
 mydata.EII1 <- data.frame(Psychedelics = HUDMAIN_df$PSY_freqprox,
                           MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
                           Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
                           Stimulants = HUDMAIN_df$STIM_freqprox, EII = HUDMAIN_df$EII1scaled, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex)
-EII.1 <- glm (EII ~ Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydata.EII1)
+EII.1 <- glm (EII ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydata.EII1)
 EII.1.S <- lm.beta(EII.1)
 summary(EII.1.S)
 summary(EII.1)
 beta(EII.1)
-coefplot.glm(EII.1, intercept = F, decreasing = T, title = NULL,
-             xlab = "Estimate", numeric = F, zeroColor = "grey", plot.shapes = TRUE,
-             lwdInner=2,pointSize = 5, cex=7)+scale_color_manual(values = c("black", "black"))+
-  theme(text = element_text(size=20), axis.text.x = element_text(angle=90, hjust=1))
+coefplot.glm(EII.1, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
+
+#EII (new)
+mydata.EII2 <- data.frame(Psychedelics = HUDMAIN_df$PSY_freqprox,
+                          MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
+                          Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
+                          Stimulants = HUDMAIN_df$STIM_freqprox, EII = HUDMAIN_df$EII2scaled, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex)
+EII.2 <- glm (EII ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydata.EII2)
+EII.2.S <- lm.beta(EII.2)
+summary(EII.2)
+summary(EII.2.S)
+beta(EII.2)
+coefplot.glm(EII.2, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
+
+# Create plot for both models
+multiplot(EII.1, EII.2, intercept = F, decreasing = T, title = NULL,
+  xlab = "Estimate", numeric = F, zeroColor = "grey", plot.shapes = TRUE,
+  lwdInner=2,pointSize = 5, cex=7)+scale_color_manual(values = c("black", "black"))+
+  theme(text = element_text(size=20), axis.text.x = element_text(angle=90, hjust=1)) 
 
 
 
@@ -288,6 +309,17 @@ points(cbind(jitter(rep(2, table(HUDMAIN_df$drug_psychedelics.y==1)[2])), HUDMAI
 rhotest <- glm(rhos ~ PSY_freqprox, data = HUDMAIN_df)
 summary(rhotest)
 beta(rhotest)
+
+mydata.RHO <- data.frame(Psychedelics = HUDMAIN_df$PSY_freqprox,
+                         MDMA = HUDMAIN_df$MDMA_freqprox, Alcohol = HUDMAIN_df$ALC_freqprox, Opiates = HUDMAIN_df$OPI_freqprox,
+                         Cannabis = HUDMAIN_df$CAN_freqprox, Tobacco = HUDMAIN_df$TOB_freqprox,
+                         Stimulants = HUDMAIN_df$STIM_freqprox, RHO = HUDMAIN_df$rhos, Age = HUDMAIN_df$age, Sex = HUDMAIN_df$sex)
+
+RHO <- glm (RHO ~ Age+Sex+Psychedelics+Opiates+MDMA+Alcohol+Cannabis+Tobacco+Stimulants, data= mydata.RHO)
+RHO.S <- lm.beta(RHO)
+summary(RHO.S)
+coefplot.glm(RHO, intercept = F, decreasing = T, title = NULL, xlab = "Estimate", color = "black")
+
 
 ######################
 ### LOG REGRESSION ###
@@ -509,9 +541,66 @@ res <- compareGroups(Psychedelics ~ Age + Sex + Education + Alcohol + Tobacco + 
 restab <- createTable(res, hide.no = "2", hide =c(Sex = "man", Alcohol = "0", Tobacco = "0", MDMA = "0",
                                                   Cannabis = "0", Stimulants = "0", Opiates = "0"), show.n = TRUE)
 
+
+
+# Percentage of drus use (tried at least once):
+np <- c(
+  paste0(sum(as.numeric(HUDMAIN_df$drug_psychedelics[HUDMAIN_df$group.y=='NP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_psychedelics[HUDMAIN_df$group.y=='NP'])-1)/
+                      sum(HUDMAIN_df$group.y=='NP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_alc[HUDMAIN_df$group.y=='NP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_alc[HUDMAIN_df$group.y=='NP'])-1)/
+                 sum(HUDMAIN_df$group.y=='NP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_tobacco[HUDMAIN_df$group.y=='NP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_tobacco[HUDMAIN_df$group.y=='NP'])-1)/
+                      sum(HUDMAIN_df$group.y=='NP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_mdma[HUDMAIN_df$group.y=='NP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_mdma[HUDMAIN_df$group.y=='NP'])-1)/
+                      sum(HUDMAIN_df$group.y=='NP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_cannabis[HUDMAIN_df$group.y=='NP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_cannabis[HUDMAIN_df$group.y=='NP'])-1)/
+                      sum(HUDMAIN_df$group.y=='NP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_stim[HUDMAIN_df$group.y=='NP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_stim[HUDMAIN_df$group.y=='NP'])-1)/
+                      sum(HUDMAIN_df$group.y=='NP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_opi[HUDMAIN_df$group.y=='NP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_opi[HUDMAIN_df$group.y=='NP'])-1)/
+                      sum(HUDMAIN_df$group.y=='NP'),2)*100, '%)'))
+  
+pp <- c(
+  paste0(sum(as.numeric(HUDMAIN_df$drug_psychedelics[HUDMAIN_df$group.y=='PP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_psychedelics[HUDMAIN_df$group.y=='PP'])-1)/
+                      sum(HUDMAIN_df$group.y=='PP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_alc[HUDMAIN_df$group.y=='PP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_alc[HUDMAIN_df$group.y=='PP'])-1)/
+                      sum(HUDMAIN_df$group.y=='PP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_tobacco[HUDMAIN_df$group.y=='PP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_tobacco[HUDMAIN_df$group.y=='PP'])-1)/
+                      sum(HUDMAIN_df$group.y=='PP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_mdma[HUDMAIN_df$group.y=='PP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_mdma[HUDMAIN_df$group.y=='PP'])-1)/
+                      sum(HUDMAIN_df$group.y=='PP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_cannabis[HUDMAIN_df$group.y=='PP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_cannabis[HUDMAIN_df$group.y=='PP'])-1)/
+                      sum(HUDMAIN_df$group.y=='PP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_stim[HUDMAIN_df$group.y=='PP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_stim[HUDMAIN_df$group.y=='PP'])-1)/
+                      sum(HUDMAIN_df$group.y=='PP'),2)*100, '%)'),
+  paste0(sum(as.numeric(HUDMAIN_df$drug_opi[HUDMAIN_df$group.y=='PP'])-1),
+         ' (',round(sum(as.numeric(HUDMAIN_df$drug_opi[HUDMAIN_df$group.y=='PP'])-1)/
+                      sum(HUDMAIN_df$group.y=='PP'),2)*100, '%)'))
+  
+d_use <-rbind(np,pp)
+rownames(d_use) <- c('Non-Users', 'Users')
+colnames(d_use) <- c('Psychedelis', 'Alcohol','Tobacco',
+                     'MDMA', 'Cannabis', 'Stimulants','Opiates')
+
+write.xlsx2(d_use, file='/Users/alebedev/Downloads/d_use.xlsx')
+
+
 #print table
 print(restab, which.table = "descr", header.labels = c(p.overall = "p"))
-
+ 
 #export table
 export2html(restab, file='~/Downloads/descriptives1.html', header.labels = c(p.overall = "p"))
 
